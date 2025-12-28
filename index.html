@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý Key</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2a5298;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .admin-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .key-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .key-type-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .key-type-btn:hover {
+            border-color: #2a5298;
+            background: #e8f4ff;
+        }
+        
+        .key-type-btn.active {
+            background: #2a5298;
+            color: white;
+            border-color: #2a5298;
+        }
+        
+        .key-type-btn .duration {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .key-type-btn .price {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .key-type-btn.active .price {
+            color: #ddd;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #2a5298;
+            outline: none;
+        }
+        
+        .btn-generate {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+        
+        .generated-key {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 2px;
+            word-break: break-all;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(79, 172, 254, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 172, 254, 0); }
+        }
+        
+        .key-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .key-action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-copy {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-copy:hover {
+            background: #0056b3;
+        }
+        
+        .btn-save {
+            background: #6f42c1;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #563d7c;
+        }
+        
+        .btn-download {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background: #117a8b;
+        }
+        
+        .keys-list {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-top: 25px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .key-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .type-FREE { background: #ffc107; color: #333; }
+        .type-DAY1 { background: #17a2b8; color: white; }
+        .type-WEEK1 { background: #28a745; color: white; }
+        .type-MONTH1 { background: #007bff; color: white; }
+        .type-YEAR1 { background: #6f42c1; color: white; }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .login-panel {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        
+        .login-panel h2 {
+            margin-bottom: 30px;
+            color: #2a5298;
+        }
+        
+        .password-input {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .password-input input {
+            padding-right: 40px;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .btn-login {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        .btn-login:hover {
+            background: #1e3c72;
+        }
+        
+        .admin-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen (ban đầu hiển thị) -->
+    <div id="loginScreen" class="login-panel">
+        <h2><i class="fas fa-lock"></i> ADMIN LOGIN</h2>
+        <div class="password-input">
+            <input type="password" id="adminPassword" class="form-control" placeholder="Nhập mật khẩu admin">
+            <button type="button" class="toggle-password" id="togglePassword">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+        <button class="btn-login" id="loginBtn">
+            <i class="fas fa-sign-in-alt"></i> ĐĂNG NHẬP
+        </button>
+        <div style="margin-top: 20px; font-size: 12px; color: #666;">
+            Mật khẩu mặc định: admin123
+        </div>
+    </div>
+
+    <!-- Admin Panel (ban đầu ẩn) -->
+    <div id="adminPanel" style="display: none;">
+        <div class="admin-header">
+            <h1><i class="fas fa-user-shield"></i> QUẢN LÝ KEY BẢN QUYỀN</h1>
+            <p>Tạo và quản lý các loại key cho tool</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="totalKeys">0</div>
+                <div class="stat-label">Tổng số key</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="activeKeys">0</div>
+                <div class="stat-label">Key đang hoạt động</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="todayKeys">0</div>
+                <div class="stat-label">Key tạo hôm nay</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="revenue">0</div>
+                <div class="stat-label">Doanh thu (K)</div>
+            </div>
+        </div>
+
+        <div class="admin-panel">
+            <div class="card">
+                <h2><i class="fas fa-key"></i> TẠO KEY MỚI</h2>
+                
+                <div class="key-type-grid">
+                    <div class="key-type-btn" data-type="FREE">
+                        <div class="duration">1 GIỜ</div>
+                        <div class="price">FREE</div>
+                    </div>
+                    <div class="key-type-btn active" data-type="DAY1">
+                        <div class="duration">1 NGÀY</div>
+                        <div class="price">10K</div>
+                    </div>
+                    <div class="key-type-btn" data-type="WEEK1">
+                        <div class="duration">1 TUẦN</div>
+                        <div class="price">30K</div>
+                    </div>
+                    <div class="key-type-btn" data-type="MONTH1">
+                        <div class="duration">1 THÁNG</div>
+                        <div class="price">50K</div>
+                    </div>
+                    <div class="key-type-btn" data-type="YEAR1">
+                        <div class="duration">1 NĂM</div>
+                        <div class="price">200K</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Tên khách hàng (tùy chọn)</label>
+                    <input type="text" id="customerName" class="form-control" placeholder="Nhập tên khách hàng">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Số điện thoại (tùy chọn)</label>
+                    <input type="text" id="customerPhone" class="form-control" placeholder="Nhập SĐT khách hàng">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Số lượng key</label>
+                    <input type="number" id="keyQuantity" class="form-control" value="1" min="1" max="100">
+                </div>
+
+                <button class="btn-generate" id="generateBtn">
+                    <i class="fas fa-magic"></i> TẠO KEY
+                </button>
+
+                <div id="generatedKeyContainer" style="display: none;">
+                    <div class="generated-key" id="generatedKey">
+                        KEY SẼ HIỂN THỊ Ở ĐÂY
+                    </div>
+                    <div class="key-actions">
+                        <button class="key-action-btn btn-copy" id="copyKeyBtn">
+                            <i class="fas fa-copy"></i> COPY
+                        </button>
+                        <button class="key-action-btn btn-save" id="saveKeyBtn">
+                            <i class="fas fa-save"></i> LƯU
+                        </button>
+                        <button class="key-action-btn btn-download" id="downloadKeyBtn">
+                            <i class="fas fa-download"></i> TẢI XUỐNG
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-cogs"></i> CÀI ĐẶT HỆ THỐNG</h2>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Đổi mật khẩu admin</label>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Mật khẩu mới">
+                    <input type="password" id="confirmPassword" class="form-control" style="margin-top: 10px;" placeholder="Xác nhận mật khẩu">
+                    <button class="key-action-btn btn-save" style="margin-top: 10px; width: 100%;" id="changePasswordBtn">
+                        <i class="fas fa-key"></i> ĐỔI MẬT KHẨU
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-link"></i> Link quảng cáo FREE</label>
+                    <input type="text" id="adLink" class="form-control" value="https://link-target.net/2509677/AOcvD5qklmiL">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-dollar-sign"></i> Giá key (VNĐ)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <input type="number" id="priceDay" class="form-control" value="10000" placeholder="1 ngày">
+                        <input type="number" id="priceMonth" class="form-control" value="50000" placeholder="1 tháng">
+                        <input type="number" id="priceYear" class="form-control" value="200000" placeholder="1 năm">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-friends"></i> Thông tin liên hệ</label>
+                    <input type="text" id="facebookLink" class="form-control" value="https://www.facebook.com/nguyen.hoang.anh.843927" placeholder="Facebook">
+                    <input type="text" id="zaloNumber" class="form-control" style="margin-top: 10px;" value="0982015596" placeholder="Zalo">
+                </div>
+
+                <button class="key-action-btn btn-save" style="width: 100%; margin-top: 10px;" id="saveSettingsBtn">
+                    <i class="fas fa-save"></i> LƯU CÀI ĐẶT
+                </button>
+            </div>
+        </div>
+
+        <div class="keys-list">
+            <h2><i class="fas fa-list"></i> DANH SÁCH KEY ĐÃ TẠO</h2>
+            
+            <div class="table-container">
+                <table id="keysTable">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>KEY</th>
+                            <th>LOẠI</th>
+                            <th>KHÁCH HÀNG</th>
+                            <th>NGÀY TẠO</th>
+                            <th>HẾT HẠN</th>
+                            <th>HÀNH ĐỘNG</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keysTableBody">
+                        <!-- Dữ liệu sẽ được thêm bằng JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="key-action-btn btn-download" id="exportAllBtn">
+                    <i class="fas fa-file-export"></i> XUẤT TẤT CẢ KEY
+                </button>
+                <button class="key-action-btn" style="background: #dc3545; color: white;" id="clearAllBtn">
+                    <i class="fas fa-trash"></i> XÓA TẤT CẢ
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-footer">
+            <p>© 2024 - Hệ thống quản lý Key | Liên hệ: 0982015596</p>
+            <button id="logoutBtn" style="background: transparent; border: 1px solid white; color: white; padding: 8px 20px; border-radius: 5px; margin-top: 10px; cursor: pointer;">
+                <i class="fas fa-sign-out-alt"></i> ĐĂNG XUẤT
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình hệ thống
+        const ENCRYPT_SECRET = 'dG9vbF9zZWNyZXRfa2V5XzIwMjQ=';
+        const KEY_TYPES = {
+            'FREE': { name: '1 Giờ', duration: 60 * 60 * 1000, price: 0 },
+            'DAY1': { name: '1 Ngày', duration: 24 * 60 * 60 * 1000, price: 10000 },
+            'WEEK1': { name: '1 Tuần', duration: 7 * 24 * 60 * 60 * 1000, price: 30000 },
+            'MONTH1': { name: '1 Tháng', duration: 30 * 24 * 60 * 60 * 1000, price: 50000 },
+            'YEAR1': { name: '1 Năm', duration: 365 * 24 * 60 * 60 * 1000, price: 200000 }
+        };
+
+        // Biến toàn cục
+        let selectedKeyType = 'DAY1';
+        let currentGeneratedKey = '';
+        let allKeys = [];
+
+        // ====== ĐĂNG NHẬP ======
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('togglePassword').addEventListener('click', togglePassword);
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+
+        function login() {
+            const password = document.getElementById('adminPassword').value;
+            // Mật khẩu mặc định: admin123
+            const savedPassword = localStorage.getItem('admin_password') || 'admin123';
+            
+            if (password === savedPassword) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAllData();
+            } else {
+                alert('Mật khẩu không đúng!');
+            }
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('adminPassword');
+            const icon = document.getElementById('togglePassword').querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // ====== CHỌN LOẠI KEY ======
+        document.querySelectorAll('.key-type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.key-type-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedKeyType = this.dataset.type;
+            });
+        });
+
+        // ====== TẠO KEY ======
+        document.getElementById('generateBtn').addEventListener('click', generateKey);
+
+        function generateKey() {
+            const quantity = parseInt(document.getElementById('keyQuantity').value) || 1;
+            const customerName = document.getElementById('customerName').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            
+            let keys = [];
+            
+            for (let i = 0; i < quantity; i++) {
+                const key = generateSingleKey(selectedKeyType);
+                keys.push(key);
+                
+                // Lưu key vào danh sách
+                const keyData = {
+                    key: key,
+                    type: selectedKeyType,
+                    typeName: KEY_TYPES[selectedKeyType].name,
+                    customer: customerName || 'Khách vãng lai',
+                    phone: customerPhone || '',
+                    created: new Date().toISOString(),
+                    expire: new Date(Date.now() + KEY_TYPES[selectedKeyType].duration).toISOString(),
+                    price: KEY_TYPES[selectedKeyType].price
+                };
+                
+                allKeys.push(keyData);
+            }
+            
+            // Hiển thị key đầu tiên
+            currentGeneratedKey = keys[0];
+            document.getElementById('generatedKey').textContent = keys[0];
+            document.getElementById('generatedKeyContainer').style.display = 'block';
+            
+            // Hiển thị thông báo
+            if (quantity > 1) {
+                alert(`Đã tạo ${quantity} key thành công! Key đầu tiên hiển thị bên dưới.`);
+            }
+            
+            // Lưu vào localStorage
+            saveAllKeys();
+            
+            // Cập nhật danh sách và thống kê
+            updateKeysTable();
+            updateStats();
+            
+            // Cuộn đến key vừa tạo
+            document.getElementById('generatedKeyContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateSingleKey(type) {
+            const random = generateRandomString(8);
+            const checksum = calculateChecksum(type, random);
+            return `${type}-${random}-${checksum}`;
+        }
+
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function calculateChecksum(type, random) {
+            const checkString = type + random + ENCRYPT_SECRET;
+            let checksum = 0;
+            for (let i = 0; i < checkString.length; i++) {
+                checksum = (checksum + checkString.charCodeAt(i) * (i + 1)) % 256;
+            }
+            return checksum.toString(16).toUpperCase().padStart(2, '0');
+        }
+
+        // ====== QUẢN LÝ KEY ======
+        document.getElementById('copyKeyBtn').addEventListener('click', copyKey);
+        document.getElementById('saveKeyBtn').addEventListener('click', saveKey);
+        document.getElementById('downloadKeyBtn').addEventListener('click', downloadKey);
+        document.getElementById('exportAllBtn').addEventListener('click', exportAllKeys);
+        document.getElementById('clearAllBtn').addEventListener('click', clearAllKeys);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        function copyKey() {
+            navigator.clipboard.writeText(currentGeneratedKey).then(() => {
+                alert('Đã copy key!');
+            });
+        }
+
+        function saveKey() {
+            saveAllKeys();
+            alert('Đã lưu tất cả key vào hệ thống!');
+        }
+
+        function downloadKey() {
+            const blob = new Blob([currentGeneratedKey], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `key_${selectedKeyType}_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportAllKeys() {
+            let exportText = '=== DANH SÁCH KEY ===\n\n';
+            allKeys.forEach((key, index) => {
+                exportText += `${index + 1}. ${key.key}\n`;
+                exportText += `   Loại: ${key.typeName}\n`;
+                exportText += `   Khách hàng: ${key.customer}\n`;
+                exportText += `   Ngày tạo: ${new Date(key.created).toLocaleDateString('vi-VN')}\n`;
+                exportText += `   Hết hạn: ${new Date(key.expire).toLocaleDateString('vi-VN')}\n`;
+                exportText += `   Giá: ${key.price.toLocaleString('vi-VN')}đ\n\n`;
+            });
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `all_keys_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAllKeys() {
+            if (confirm('Bạn có chắc chắn muốn xóa TẤT CẢ key? Hành động này không thể hoàn tác!')) {
+                allKeys = [];
+                localStorage.removeItem('admin_keys');
+                updateKeysTable();
+                updateStats();
+                alert('Đã xóa tất cả key!');
+            }
+        }
+
+        function logout() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // ====== CÀI ĐẶT HỆ THỐNG ======
+        document.getElementById('changePasswordBtn').addEventListener('click', changePassword);
+        document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+
+        function changePassword() {
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            
+            if (!newPass || !confirmPass) {
+                alert('Vui lòng nhập đầy đủ thông tin!');
+                return;
+            }
+            
+            if (newPass !== confirmPass) {
+                alert('Mật khẩu xác nhận không khớp!');
+                return;
+            }
+            
+            localStorage.setItem('admin_password', newPass);
+            alert('Đã đổi mật khẩu thành công!');
+            
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function saveSettings() {
+            const settings = {
+                adLink: document.getElementById('adLink').value,
+                priceDay: parseInt(document.getElementById('priceDay').value),
+                priceMonth: parseInt(document.getElementById('priceMonth').value),
+                priceYear: parseInt(document.getElementById('priceYear').value),
+                facebookLink: document.getElementById('facebookLink').value,
+                zaloNumber: document.getElementById('zaloNumber').value
+            };
+            
+            localStorage.setItem('admin_settings', JSON.stringify(settings));
+            alert('Đã lưu cài đặt!');
+        }
+
+        // ====== TẢI VÀ LƯU DỮ LIỆU ======
+        function loadAllData() {
+            // Load keys
+            const savedKeys = localStorage.getItem('admin_keys');
+            if (savedKeys) {
+                allKeys = JSON.parse(savedKeys);
+            }
+            
+            // Load settings
+            const savedSettings = localStorage.getItem('admin_settings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                document.getElementById('adLink').value = settings.adLink;
+                document.getElementById('priceDay').value = settings.priceDay;
+                document.getElementById('priceMonth').value = settings.priceMonth;
+                document.getElementById('priceYear').value = settings.priceYear;
+                document.getElementById('facebookLink').value = settings.facebookLink;
+                document.getElementById('zaloNumber').value = settings.zaloNumber;
+            }
+            
+            updateKeysTable();
+            updateStats();
+        }
+
+        function saveAllKeys() {
+            localStorage.setItem('admin_keys', JSON.stringify(allKeys));
+        }
+
+        function updateKeysTable() {
+            const tbody = document.getElementById('keysTableBody');
+            tbody.innerHTML = '';
+            
+            // Sắp xếp theo ngày tạo mới nhất
+            const sortedKeys = [...allKeys].sort((a, b) => new Date(b.created) - new Date(a.created));
+            
+            sortedKeys.forEach((keyData, index) => {
+                const row = document.createElement('tr');
+                
+                // Kiểm tra key còn hạn
+                const isExpired = new Date(keyData.expire) < new Date();
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td class="key-cell">${keyData.key}</td>
+                    <td><span class="type-badge type-${keyData.type}">${keyData.typeName}</span></td>
+                    <td>${keyData.customer}<br><small>${keyData.phone}</small></td>
+                    <td>${new Date(keyData.created).toLocaleDateString('vi-VN')}</td>
+                    <td style="color: ${isExpired ? '#dc3545' : '#28a745'}">
+                        ${new Date(keyData.expire).toLocaleDateString('vi-VN')}
+                        ${isExpired ? '<br><small>(Đã hết hạn)</small>' : ''}
+                    </td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteKey(${index})">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function deleteKey(index) {
+            if (confirm('Bạn có chắc chắn muốn xóa key này?')) {
+                allKeys.splice(index, 1);
+                saveAllKeys();
+                updateKeysTable();
+                updateStats();
+            }
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayKeys = allKeys.filter(k => k.created.split('T')[0] === today).length;
+            const activeKeys = allKeys.filter(k => new Date(k.expire) > new Date()).length;
+            const totalRevenue = allKeys.reduce((sum, k) => sum + k.price, 0);
+            
+            document.getElementById('totalKeys').textContent = allKeys.length;
+            document.getElementById('activeKeys').textContent = activeKeys;
+            document.getElementById('todayKeys').textContent = todayKeys;
+            document.getElementById('revenue').textContent = (totalRevenue / 1000).toFixed(0);
+        }
+
+        // Cho phép hàm deleteKey được gọi từ onclick
+        window.deleteKey = deleteKey;
+
+        // Tự động đăng nhập nếu đã có session
+        window.onload = function() {
+            const savedPassword = localStorage.getItem('admin_password') || 'admin123';
+            // Kiểm tra nếu đã đăng nhập trước đó
+            if (localStorage.getItem('admin_logged_in') === 'true') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAllData();
+            }
+        };
+    </script>
+</body>
+</html>
